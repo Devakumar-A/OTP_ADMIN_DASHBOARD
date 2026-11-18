@@ -34,9 +34,9 @@ export async function fetchAll<T = any>(make: () => any, max = MAX_ROWS): Promis
 }
 
 export const STAY_FACT_COLS =
-  'id,hotel_id,receptionist_id,check_in_time,checked_out_at,current_check_out_time,stay_status,payment_status,payment_mode,number_of_guests,number_of_rooms,amount,total_amount,amount_paid,balance_amount,cash_amount,gpay_amount,card_amount,online_amount,guest_name,guest_phone,booking_id,room_number';
+  'id,hotel_id,receptionist_id,check_in_time,checked_out_at,current_check_out_time,stay_status,payment_status,payment_mode,number_of_guests,number_of_rooms,number_of_nights,amount,total_amount,amount_paid,balance_amount,cash_amount,gpay_amount,card_amount,online_amount,guest_name,guest_phone,booking_id,room_number,grc_number,source';
 export const EXT_FACT_COLS =
-  'id,guest_stay_id,hotel_id,receptionist_id,created_at,extension_nights,extension_amount,amount_paid,balance_amount,payment_mode,payment_status';
+  'id,guest_stay_id,hotel_id,receptionist_id,booking_id,created_at,extension_nights,extension_amount,amount_paid,balance_amount,payment_mode,payment_status,previous_checkout_time,new_checkout_time,extension_reason';
 export const VERIF_FACT_COLS = 'id,hotel_id,receptionist_id,otp_status,review_status,created_at';
 export const FOLLOW_FACT_COLS = 'id,hotel_id,review_status,created_at';
 

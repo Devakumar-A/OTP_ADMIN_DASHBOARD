@@ -15,6 +15,7 @@ export interface StayFact {
   stay_status: string | null;
   payment_status: string | null;
   payment_mode: string | null;
+  number_of_nights?: number | null;
   number_of_guests: number | null;
   number_of_rooms: number | null;
   amount: number | null;
@@ -28,7 +29,10 @@ export interface StayFact {
   guest_name?: string | null;
   guest_phone?: string | null;
   booking_id?: string | null;
+  grc_number?: string | null;
   room_number?: string | null;
+  source?: string | null;
+  purpose_of_visit?: string | null;
 }
 
 export interface ExtFact {
@@ -36,6 +40,7 @@ export interface ExtFact {
   guest_stay_id: string | null;
   hotel_id: string | null;
   receptionist_id: string | null;
+  booking_id?: string | null;
   created_at: string | null;
   extension_nights: number | null;
   extension_amount: number | null;
@@ -43,6 +48,10 @@ export interface ExtFact {
   balance_amount: number | null;
   payment_mode: string | null;
   payment_status: string | null;
+  previous_checkout_time?: string | null;
+  new_checkout_time?: string | null;
+  extension_reason?: string | null;
+  source?: string | null;
 }
 
 export const MODES = ['Cash', 'GPay', 'Card', 'Online', 'Other'] as const;

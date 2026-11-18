@@ -18,5 +18,12 @@ export function useFinance(f: Filters, opts: { skipDate?: boolean } = {}) {
       truncated: stays.data.truncated || exts.data.truncated,
     };
   }, [stays.data, exts.data]);
-  return { data, loading: stays.isLoading || exts.isLoading, error: stays.error || exts.error };
+  return {
+    data,
+    loading: stays.isLoading || exts.isLoading,
+    error: stays.error || exts.error,
+    refetch: async () => {
+      await Promise.all([stays.refetch(), exts.refetch()]);
+    },
+  };
 }

@@ -2,10 +2,53 @@ import { ReactNode, useState, useRef, useEffect } from 'react';
 import type { Tone } from '../lib/classify';
 import { int } from '../lib/format';
 
-export function Kpi({ label, value, sub, tone }: { label: string; value: ReactNode; sub?: ReactNode; tone?: Tone }) {
+export function InfoTooltip({ text }: { text: string }) {
+  return (
+    <span
+      className="info-icon"
+      title={text}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 16,
+        height: 16,
+        borderRadius: '50%',
+        background: 'var(--panel2)',
+        border: '1px solid var(--line)',
+        color: 'var(--muted)',
+        fontSize: 10.5,
+        fontWeight: 'bold',
+        marginLeft: 6,
+        cursor: 'help',
+        flexShrink: 0,
+        userSelect: 'none',
+      }}
+    >
+      i
+    </span>
+  );
+}
+
+export function Kpi({
+  label,
+  value,
+  sub,
+  tone,
+  info,
+}: {
+  label: string;
+  value: ReactNode;
+  sub?: ReactNode;
+  tone?: Tone;
+  info?: string;
+}) {
   return (
     <div className={`card kpi ${tone ?? ''}`}>
-      <div className="l">{label}</div>
+      <div className="l">
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        {info ? <InfoTooltip text={info} /> : null}
+      </div>
       <div className="v">{value}</div>
       {sub ? <div className="s">{sub}</div> : null}
     </div>
@@ -48,14 +91,21 @@ export const Loading = ({ rows = 4 }: { rows?: number }) => (
 
 export const Empty = ({ text = 'No records match the current filters.' }: { text?: string }) => <div className="empty">{text}</div>;
 
-export function ErrorBox({ error }: { error: any }) {
+export function ErrorBox({ error, onRetry }: { error: any; onRetry?: () => void }) {
   const msg = error?.message ?? String(error);
   return (
-    <div className="notice bad" role="alert">
-      <strong>Could not load data.</strong> {msg}
-      <div style={{ marginTop: 4, opacity: 0.85 }}>
-        If this says permission denied or returns nothing, Row Level Security is limiting what this account may read. The dashboard never bypasses RLS.
+    <div className="notice bad" role="alert" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div>
+        <strong>Could not load data.</strong> {msg}
+        <div style={{ marginTop: 4, opacity: 0.85, fontSize: 12 }}>
+          If this says permission denied or returns nothing, Row Level Security is limiting what this account may read. The dashboard never bypasses RLS.
+        </div>
       </div>
+      {onRetry ? (
+        <button className="btn sm" onClick={onRetry} style={{ marginLeft: 12, whiteSpace: 'nowrap' }}>
+          Retry
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -72,10 +122,10 @@ export interface Col<T> {
 }
 
 export function DataTable<T>({
-  cols, rows, loading, error, page, pageSize, total, onPage, rowKey, empty,
+  cols, rows, loading, error, page, pageSize, total, onPage, rowKey, empty, onRowClick,
 }: {
   cols: Col<T>[]; rows: T[]; loading?: boolean; error?: any; page?: number; pageSize?: number; total?: number;
-  onPage?: (p: number) => void; rowKey: (r: T) => string; empty?: string;
+  onPage?: (p: number) => void; rowKey: (r: T) => string; empty?: string; onRowClick?: (r: T) => void;
 }) {
   if (error) return <ErrorBox error={error} />;
   if (loading) return <Loading />;
@@ -91,7 +141,13 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={rowKey(r)}>{cols.map((c) => <td key={c.key} className={c.align}>{c.render(r)}</td>)}</tr>
+              <tr
+                key={rowKey(r)}
+                onClick={onRowClick ? () => onRowClick(r) : undefined}
+                style={onRowClick ? { cursor: 'pointer' } : undefined}
+              >
+                {cols.map((c) => <td key={c.key} className={c.align}>{c.render(r)}</td>)}
+              </tr>
             ))}
           </tbody>
         </table>

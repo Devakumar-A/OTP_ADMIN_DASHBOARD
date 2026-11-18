@@ -7,6 +7,7 @@ interface FilterCtx {
   applied: Filters;
   draft: Filters;
   setDraft: (patch: Partial<Filters>) => void;
+  setFilterInstant: (patch: Partial<Filters>) => void;
   setPreset: (p: Preset) => void;
   setDateField: (df: DateField) => void;
   apply: () => void;
@@ -33,6 +34,7 @@ function parseParams(params: URLSearchParams): Filters {
     guestName: params.get('guestName') ?? def.guestName,
     guestPhone: params.get('guestPhone') ?? def.guestPhone,
     receptionistId: params.get('receptionistId') ?? def.receptionistId,
+    source: params.get('source') ?? def.source,
     stayStatus: params.get('stayStatus') ?? def.stayStatus,
     paymentStatus: params.get('paymentStatus') ?? def.paymentStatus,
     paymentMode: params.get('paymentMode') ?? def.paymentMode,
@@ -57,6 +59,7 @@ function serializeFilters(f: Filters): Record<string, string> {
   if (f.guestName) out.guestName = f.guestName;
   if (f.guestPhone) out.guestPhone = f.guestPhone;
   if (f.receptionistId) out.receptionistId = f.receptionistId;
+  if (f.source) out.source = f.source;
   if (f.stayStatus) out.stayStatus = f.stayStatus;
   if (f.paymentStatus) out.paymentStatus = f.paymentStatus;
   if (f.paymentMode) out.paymentMode = f.paymentMode;
@@ -100,38 +103,42 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     setDraftState((d) => ({ ...d, ...patch }));
   }, []);
 
+  // Update both draft and applied simultaneously
+  const setFilterInstant = useCallback(
+    (patch: Partial<Filters>) => {
+      setDraftState((d) => {
+        const next = { ...d, ...patch };
+        setApplied(next);
+        updateUrl(next);
+        return next;
+      });
+    },
+    [updateUrl],
+  );
+
   // Preset applies instantly
   const setPreset = useCallback(
     (p: Preset) => {
       const dates = p === 'custom' ? {} : presetRange(p);
-      const next: Filters = { ...draft, preset: p, ...dates };
-      setDraftState(next);
-      setApplied(next);
-      updateUrl(next);
+      setFilterInstant({ preset: p, ...dates });
     },
-    [draft, updateUrl],
+    [setFilterInstant],
   );
 
   // Date field applies instantly
   const setDateField = useCallback(
     (df: DateField) => {
-      const next: Filters = { ...draft, dateField: df };
-      setDraftState(next);
-      setApplied(next);
-      updateUrl(next);
+      setFilterInstant({ dateField: df });
     },
-    [draft, updateUrl],
+    [setFilterInstant],
   );
 
   // Hotel applies instantly
   const setHotel = useCallback(
     (id: string) => {
-      const next: Filters = { ...draft, hotelId: id };
-      setDraftState(next);
-      setApplied(next);
-      updateUrl(next);
+      setFilterInstant({ hotelId: id });
     },
-    [draft, updateUrl],
+    [setFilterInstant],
   );
 
   // Text inputs & form apply on Enter or Apply button
@@ -165,17 +172,19 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       if (k === 'from' || k === 'to') {
         Object.assign(patch, { preset: 'custom' as Preset, [k]: '' });
       }
-      const next: Filters = { ...applied, ...patch };
-      setDraftState(next);
-      setApplied(next);
-      updateUrl(next);
+      setDraftState((prev) => {
+        const next: Filters = { ...prev, ...patch };
+        setApplied(next);
+        updateUrl(next);
+        return next;
+      });
     },
-    [applied, updateUrl],
+    [updateUrl],
   );
 
   const value = useMemo(
-    () => ({ applied, draft, setDraft, setPreset, setDateField, apply, clear, setHotel, remove }),
-    [applied, draft, setDraft, setPreset, setDateField, apply, clear, setHotel, remove],
+    () => ({ applied, draft, setDraft, setFilterInstant, setPreset, setDateField, apply, clear, setHotel, remove }),
+    [applied, draft, setDraft, setFilterInstant, setPreset, setDateField, apply, clear, setHotel, remove],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

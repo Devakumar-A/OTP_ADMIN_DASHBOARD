@@ -9,6 +9,7 @@ export const env = {
     .filter(Boolean),
   expectedHotels: Number(e.VITE_EXPECTED_HOTELS ?? 15) || 15,
   extIncluded: String(e.VITE_EXTENSIONS_INCLUDED_IN_TOTAL ?? 'false').toLowerCase() === 'true',
+  dataStart: String(e.VITE_DATA_START ?? '2026-10-18'),
 };
 
 export const configured =

@@ -5,15 +5,10 @@ import { Layout } from './components/Layout';
 import { Loading } from './components/ui';
 import { Login } from './pages/Login';
 import { Overview } from './pages/Overview';
-import { Hotels } from './pages/Hotels';
 import { Stays } from './pages/Stays';
-import { Verification } from './pages/Verification';
+import { GrcPrint } from './pages/GrcPrint';
 import { Revenue } from './pages/Revenue';
-import { Extensions } from './pages/Extensions';
-import { Receptionists } from './pages/Receptionists';
-import { Reviews } from './pages/Reviews';
 import { Reports } from './pages/Reports';
-import { Diagnostics } from './pages/Diagnostics';
 
 export function App() {
   const { session, loading, denied, signOut } = useAuth();
@@ -24,8 +19,8 @@ export function App() {
         <div className="card" style={{ padding: 24, maxWidth: 520 }}>
           <h1>Supabase is not configured</h1>
           <p className="muted">
-            Open the <code>.env</code> file in the project root and set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> to your existing project values (anon key only),
-            then restart the dev server.
+            Open the <code>.env</code> file in the project root and set <code>VITE_SUPABASE_URL</code> and{' '}
+            <code>VITE_SUPABASE_ANON_KEY</code> to your existing project values (anon key only), then restart the dev server.
           </p>
         </div>
       </div>
@@ -44,19 +39,19 @@ export function App() {
       </div>
     );
   }
+
   return (
     <Routes>
+      {/* Standalone print route without app chrome */}
+      <Route path="stays/print" element={<GrcPrint />} />
+      <Route path="stays/print/:id" element={<GrcPrint />} />
+
+      {/* Main app layout */}
       <Route element={<Layout />}>
         <Route index element={<Overview />} />
-        <Route path="hotels" element={<Hotels />} />
         <Route path="stays" element={<Stays />} />
-        <Route path="verification" element={<Verification />} />
         <Route path="revenue" element={<Revenue />} />
-        <Route path="extensions" element={<Extensions />} />
-        <Route path="receptionists" element={<Receptionists />} />
-        <Route path="reviews" element={<Reviews />} />
         <Route path="reports" element={<Reports />} />
-        <Route path="diagnostics" element={<Diagnostics />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

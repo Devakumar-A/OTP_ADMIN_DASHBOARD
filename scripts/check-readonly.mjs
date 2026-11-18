@@ -28,7 +28,16 @@ function walk(dir) {
       const text = readFileSync(p, 'utf8');
       text.split('\n').forEach((line, i) => {
         if (line.trim().startsWith('//')) return;
-        for (const [re, label] of banned) if (re.test(line)) problems.push(`${p}:${i + 1}  ${label}`);
+        for (const [re, label] of banned) {
+          if (re.test(line)) {
+            // id_proof_* and guest_address are allowed ONLY inside src/pages/GrcPrint.tsx
+            const isGrcPrint = p.replace(/\\/g, '/').endsWith('src/pages/GrcPrint.tsx');
+            if (isGrcPrint && label.includes('sensitive ID proof')) {
+              continue;
+            }
+            problems.push(`${p}:${i + 1}  ${label}`);
+          }
+        }
       });
     }
   }
